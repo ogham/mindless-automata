@@ -1,23 +1,20 @@
 // ---- automata functions ----
 
 /** Return a function for a numbered elementary cellular automata rule. */
-var rule = function(num)
+var generate = function(str, radix)
 {
-    var values = [];
-    for (var n = 0; n < 8; n++) {
-        values[n] = ((num & Math.pow(2, n)) == Math.pow(2, n)) ? 1 : 0;
-    }
-
     return function(a, b, c) {
-        return values[(a == 1 ? 4 : 0) + (b == 1 ? 2 : 0) + (c == 1 ? 1 : 0)];
+        var position = (a * radix * radix) + (b * radix) + c;
+        return parseInt(str.charAt(str.length - position - 1));
     };
 };
 
-/** Return either true or false, randomly. */
-var coinToss = function(one, tother)
+/** Return a zero-padded string of the number in the given base. */
+var stringify = function(number, radix)
 {
-    return (Math.random() < 0.5) ? one : tother;
-}
+    var str = number.toString(radix);
+    return new Array(Math.pow(radix, 3) + 1 - str.length).join('0') + str;
+};
 
 /**
  * Return an array of arrays (rows first, then columns) of the result of
@@ -91,12 +88,27 @@ var canvas = document.getElementById('canvas');
 var width = canvas.width;
 var height = canvas.height;
 
-var myColours = [ '#fff', '#444' ];
+var myColours = [ '#fff', '#444', '#b2b', '#2b2' ];
 
 // Ages ago, life was born in the primitive sea...
-var number = parameter('rule') || 110;
-var life = rule(number);
-var initialConditions = function() { return coinToss(0, 1); };
+var string = parameter('string');
+var radix = parameter('radix') || 2;
+var rule = parameter('rule');
+
+// The user can input either a string, or a rule number, and a radix.
+// If we already have a string, then use that. But if we have a rule,
+// then the rule will have to be turned into a string.
+if (rule && !string) {
+    string = stringify(parseInt(rule), radix);
+} else if (!rule && !string) {
+    // If we have neither then just go with a cool default! Rule 73 is
+    // an interesting start! Other good ones are 110 and 30.
+    // In base 3, try 7110222193934.
+    string = stringify(73, 2);
+}
+
+var life = generate(string, radix);
+var initialConditions = function() { return Math.floor(Math.random() * radix); };
 var image = cellularlyAutomate(canvas.width, canvas.height, initialConditions, life);
 
 paintImage(canvas.getContext('2d'), myColours, image);
