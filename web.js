@@ -7,7 +7,7 @@ var parameter = function(name)
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
-    return results == null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 };
 
 /** Paint an image onto a canvas's context. */
@@ -25,7 +25,7 @@ var paintImage = function(context, colours, image)
             context.fillRect(i * image.pixelSize, j * image.pixelSize, image.pixelSize, image.pixelSize);
         }
     }
-}
+};
 
 var canvas = document.getElementById('canvas');
 var panelSize = parameter('panelSize');
@@ -72,17 +72,17 @@ if (rule && !string) {
 // Set up the initial conditions...
 var ic = parameter('ic');
 
-if ((canvas.width % pixelSize) != 0) {
+if ((canvas.width % pixelSize) !== 0) {
     canvas.width = canvas.width + (pixelSize - (canvas.width % pixelSize));
 }
 
-if (ic == 'middle') {
-    if (Math.floor(canvas.width / pixelSize) % 2 == 0) {
+if (ic === 'middle') {
+    if (Math.floor(canvas.width / pixelSize) % 2 === 0) {
         canvas.width = canvas.width + pixelSize;
     }
 }
 
-if (panelSize == 'full') {
+if (panelSize === 'full') {
     if (canvas.width != docWidth) {
         canvas.style.left = "" + (Math.floor(0 - ((canvas.width - docWidth) / 2))) + "px";
     } else {
@@ -91,10 +91,10 @@ if (panelSize == 'full') {
 }
 
 var initialConditions;
-if (ic == null || ic == 'random') {
+if (ic === null || ic === 'random') {
     initialConditions = function() { return Math.floor(Math.random() * radix); };
-} else if (ic == 'middle') {
-    initialConditions = function(i) { return (i == Math.floor(canvas.width / pixelSize / 2)) ? 1 : 0; };
+} else if (ic === 'middle') {
+    initialConditions = function(i) { return (i === Math.floor(canvas.width / pixelSize / 2)) ? 1 : 0; };
 } else if (ic.match(/\d/)) {
     var n = parseInt(ic);
     initialConditions = function() { return n; };

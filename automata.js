@@ -18,7 +18,7 @@ var automata = (function (a)
 
     var coinToss = function()
     {
-    	return Math.floor(Math.random() * radix);
+        return Math.floor(Math.random() * radix);
     };
 
     /**
@@ -49,23 +49,23 @@ var automata = (function (a)
         for (var j = 1; j < image.height; j++) {
             image[j] = [];
             for (i = 0; i < image.width; i++) {
-                var a = (i == 0)
-    				? (wrap == 'random')
-    					? coinToss()
-    					: (wrap == 'false')
-    						? image[j - 1][i]
-    						: image[j - 1][image.width - 1]
-    				: image[j - 1][i - 1];
+                var a = (i === 0)
+                    ? (wrap === 'random')
+                        ? coinToss()
+                        : (wrap === 'false')
+                            ? image[j - 1][i]
+                            : image[j - 1][image.width - 1]
+                    : image[j - 1][i - 1];
 
                 var b = image[j - 1][i];
 
                 var c = (i == image.width - 1)
-    				? (wrap == 'random')
-    					? coinToss()
-    					: (wrap == 'false')
-    						? image[j - 1][i]
-    						: image[j - 1][0]
-    				: image[j - 1][i + 1];
+                    ? (wrap === 'random')
+                        ? coinToss()
+                        : (wrap === 'false')
+                            ? image[j - 1][i]
+                            : image[j - 1][0]
+                    : image[j - 1][i + 1];
 
                 image[j][i] = lifeFunction(a, b, c);
             }
