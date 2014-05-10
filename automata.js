@@ -1,33 +1,23 @@
 // ---- automata functions ----
 
 /** Return a function for a numbered elementary cellular automata rule. */
-var rule = function(num, base)
+var rule = function(num)
 {
     var values = [];
-    for (var n = 0; n < Math.pow(base, 3); n++) {
-        values[n] = num & Math.pow(2, n);
+    for (var n = 0; n < 8; n++) {
+        values[n] = ((num & Math.pow(2, n)) == Math.pow(2, n)) ? 1 : 0;
     }
 
     return function(a, b, c) {
-        return values[(a ? (base * base) : 0) + (b ? base : 0) + (c ? 1 : 0)];
+        return values[(a == 1 ? 4 : 0) + (b == 1 ? 2 : 0) + (c == 1 ? 1 : 0)];
     };
 };
 
 /** Return either true or false, randomly. */
-var coinToss = function()
+var coinToss = function(one, tother)
 {
-    return Math.random() < 0.5;
-};
-
-/**
- * Return true or false, with likelihood of true dependent on how close
- * the number is to the given maximum number. Produces a gradient.
- */
-var fade = function(max) {
-    return function(i) {
-        return Math.random() < (i / max);
-    };
-};
+    return (Math.random() < 0.5) ? one : tother;
+}
 
 /**
  * Return an array of arrays (rows first, then columns) of the result of
@@ -43,6 +33,8 @@ var cellularlyAutomate = function(width, height, initialConditions, lifeFunction
 {
     // Set up the entire image
     var image = [];
+    image.width = width;
+    image.height = height;
     
     // Set up the first row
     image[0] = [];
@@ -70,15 +62,14 @@ var paintImage = function(context, colours, image)
 {
     // The unpainted canvas is already white, so we only need to
     // paint the filled-in pixels.
-    for (var j = 0; j < height; j++) {
-        for (var i = 0; i < width; i++) {
-            if (image[j][i]) {
-                // There are various ways to paint a 1x1 pixel:
-                // http://jsperf.com/setting-canvas-pixel
-                // I've chosen the one that works for me.
-                context.fillStyle = colours[image[j][i]];
-                context.fillRect(i, j, 1, 1);
-            }
+    for (var j = 0; j < image.height; j++) {
+        for (var i = 0; i < image.width; i++) {
+            // There are various ways to paint a 1x1 pixel:
+            // http://jsperf.com/setting-canvas-pixel
+            // I've chosen the one that works for me.
+            var pixel = image[j][i];
+            context.fillStyle = colours[pixel];
+            context.fillRect(i, j, 1, 1);
         }
     }
 }
@@ -100,15 +91,12 @@ var canvas = document.getElementById('canvas');
 var width = canvas.width;
 var height = canvas.height;
 
-var myColours = {
-    true: '#444',
-    false: '#fff'
-}
+var myColours = [ '#fff', '#444' ];
 
 // Ages ago, life was born in the primitive sea...
 var number = parameter('rule') || 110;
-var life = rule(number, 2);
-var initialConditions = coinToss;  // random
+var life = rule(number);
+var initialConditions = function() { return coinToss(0, 1); };
 var image = cellularlyAutomate(canvas.width, canvas.height, initialConditions, life);
 
 paintImage(canvas.getContext('2d'), myColours, image);
