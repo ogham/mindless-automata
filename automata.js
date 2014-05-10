@@ -90,11 +90,23 @@ var parameter = function(name)
 };
 
 var canvas = document.getElementById('canvas');
-var width = canvas.width;
-var height = canvas.height;
+var panelSize = parameter('panelSize');
+
+if (panelSize == 'full') {
+	var width = document.width;
+	var height = document.height;	
+	canvas.style.margin = 0;
+	canvas.style.padding = 0;
+	canvas.style.top = 0;
+	canvas.style.left = 0;
+	canvas.style.position = 'absolute';
+	canvas.width = width;
+	canvas.height = height;
+}
+
 var pixelSize = parameter('pixelSize') || 1;
 
-var myColours = [ '#fff', '#444', '#b2b', '#2b2' ];
+var myColours = [ '#fff', '#444', '#888', '#bbb' ];
 
 // Ages ago, life was born in the primitive sea...
 var string = parameter('string');

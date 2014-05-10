@@ -1,5 +1,6 @@
 body {
     max-width: 1000px;
     margin: 2em auto 0 auto;
+	overflow: hidden;
     background: linear-gradient(to right, #eee 0%, #fff 10%, #fff 90%, #eee 100%);
 }
