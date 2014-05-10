@@ -1,3 +1,6 @@
+// mindless automata!
+// https://github.com/ogham/mindless-automata
+
 // ---- automata functions ----
 
 /** Return a function for a numbered elementary cellular automata rule. */
