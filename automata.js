@@ -29,12 +29,13 @@ var stringify = function(number, radix)
  * function is then called once per cell, taking three arguments with the
  * above-left, above, and above-right cells as values.
  */
-var cellularlyAutomate = function(width, height, initialConditions, lifeFunction)
+var cellularlyAutomate = function(width, height, pixelSize, initialConditions, lifeFunction)
 {
     // Set up the entire image
     var image = [];
-    image.width = width;
-    image.height = height;
+    image.width = width / pixelSize;
+    image.height = height / pixelSize;
+    image.pixelSize = pixelSize;
     
     // Set up the first row
     image[0] = [];
@@ -69,7 +70,7 @@ var paintImage = function(context, colours, image)
             // I've chosen the one that works for me.
             var pixel = image[j][i];
             context.fillStyle = colours[pixel];
-            context.fillRect(i, j, 1, 1);
+            context.fillRect(i * image.pixelSize, j * image.pixelSize, image.pixelSize, image.pixelSize);
         }
     }
 }
@@ -90,6 +91,7 @@ var parameter = function(name) {
 var canvas = document.getElementById('canvas');
 var width = canvas.width;
 var height = canvas.height;
+var pixelSize = parameter('pixelSize') || 1;
 
 var myColours = [ '#fff', '#444', '#b2b', '#2b2' ];
 
@@ -112,6 +114,6 @@ if (rule && !string) {
 
 var life = generate(string, radix);
 var initialConditions = function() { return Math.floor(Math.random() * radix); };
-var image = cellularlyAutomate(canvas.width, canvas.height, initialConditions, life);
+var image = cellularlyAutomate(canvas.width, canvas.height, pixelSize, initialConditions, life);
 
 paintImage(canvas.getContext('2d'), myColours, image);
