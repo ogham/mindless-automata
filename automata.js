@@ -94,7 +94,7 @@ var panelSize = parameter('panelSize');
 
 if (panelSize == 'full') {
 	var width = document.width;
-	var height = document.height;	
+	var height = document.height;
 	canvas.style.margin = 0;
 	canvas.style.padding = 0;
 	canvas.style.top = 0;
@@ -119,10 +119,9 @@ var rule = parameter('rule');
 if (rule && !string) {
     string = stringify(parseInt(rule), radix);
 } else if (!rule && !string) {
-    // If we have neither then just go with a cool default! Rule 73 is
-    // an interesting start! Other good ones are 110 and 30.
-    // In base 3, try 7110222193934.
-    string = stringify(73, 2);
+    // If we have neither then just go with a cool default!
+    radix = 2;
+    string = stringify(73, radix);
 }
 
 // Set up the initial conditions...
