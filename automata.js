@@ -20,6 +20,13 @@ var stringify = function(number, radix)
 };
 
 /**
+**/
+var coinToss = function()
+{
+	return Math.floor(Math.random() * radix);
+};
+
+/**
  * Return an array of arrays (rows first, then columns) of the result of
  * calling the given cellular automaton repeatedly.
  *
@@ -31,6 +38,8 @@ var stringify = function(number, radix)
  */
 var cellularlyAutomate = function(width, height, pixelSize, initialConditions, lifeFunction)
 {
+	var wrap = parameter('wrap');
+	
     // Set up the entire image
     var image = [];
     image.width = width / pixelSize;
@@ -39,17 +48,32 @@ var cellularlyAutomate = function(width, height, pixelSize, initialConditions, l
 
     // Set up the first row
     image[0] = [];
-    for (var i = 0; i < width; i++) {
+    for (var i = 0; i < image.width; i++) {
         image[0][i] = initialConditions(i);
     }
 
     // Iterate through the other rows
-    for (var j = 1; j < height; j++) {
+    for (var j = 1; j < image.height; j++) {
         image[j] = [];
-        for (i = 0; i < width; i++) {
-            var a = (i == 0) ? image[j - 1][width - 1] : image[j - 1][i - 1];
+        for (i = 0; i < image.width; i++) {
+            var a = (i == 0) 
+				? (wrap == 'random') 
+					? coinToss() 
+					: (wrap == 'false') 
+						? image[j - 1][i]
+						: image[j - 1][image.width - 1] 
+				: image[j - 1][i - 1];
+				
             var b = image[j - 1][i];
-            var c = (i == width - 1) ? image[j - 1][0] : image[j - 1][i + 1];
+			
+            var c = (i == image.width - 1)
+				? (wrap == 'random') 
+					? coinToss() 
+					: (wrap == 'false') 
+						? image[j - 1][i]
+						: image[j - 1][0]
+				: image[j - 1][i + 1];
+				
             image[j][i] = lifeFunction(a, b, c);
         }
     }
@@ -92,19 +116,24 @@ var parameter = function(name)
 var canvas = document.getElementById('canvas');
 var panelSize = parameter('panelSize');
 
+var docWidth = document.width;
+var docHeight = document.height;
+
 if (panelSize == 'full') {
-	var width = document.width;
-	var height = document.height;	
-	canvas.style.margin = 0;
+	canvas.style.marginTop = 0;
 	canvas.style.padding = 0;
 	canvas.style.top = 0;
-	canvas.style.left = 0;
 	canvas.style.position = 'absolute';
-	canvas.width = width;
-	canvas.height = height;
+	canvas.width = docWidth;
+	canvas.height = docHeight;
+}
+else
+{
+	canvas.width = 1000;
+	canvas.height = 500;
 }
 
-var pixelSize = parameter('pixelSize') || 1;
+var pixelSize = parseInt(parameter('pixelSize')) || 1;
 
 var myColours = [ '#fff', '#444', '#888', '#bbb' ];
 
@@ -127,11 +156,32 @@ if (rule && !string) {
 
 // Set up the initial conditions...
 var ic = parameter('ic');
+	
+if ((canvas.width % pixelSize) != 0) {
+	canvas.width = canvas.width + (pixelSize - (canvas.width % pixelSize));
+}
+
+if (ic == 'middle') {
+	if (Math.floor(canvas.width / pixelSize) % 2 == 0) {
+		canvas.width = canvas.width + pixelSize;
+	}
+}
+
+if (panelSize == 'full') {	
+	if (canvas.width != docWidth) {
+		canvas.style.left = "" + (Math.floor(0 - ((canvas.width - docWidth) / 2))) + "px";
+	}
+	else
+	{
+		canvas.style.left = 0;
+	}
+}
+
 var initialConditions;
 if (ic == null || ic == 'random') {
     initialConditions = function() { return Math.floor(Math.random() * radix); };
 } else if (ic == 'middle') {
-    initialConditions = function(i) { return (i == Math.floor(canvas.width / 2)) ? 1 : 0; };
+    initialConditions = function(i) { return (i == Math.floor(canvas.width / pixelSize / 2)) ? 1 : 0; };
 } else if (ic.match(/\d/)) {
     var n = parseInt(ic);
     initialConditions = function() { return n; };
