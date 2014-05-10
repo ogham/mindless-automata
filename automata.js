@@ -36,13 +36,13 @@ var cellularlyAutomate = function(width, height, pixelSize, initialConditions, l
     image.width = width / pixelSize;
     image.height = height / pixelSize;
     image.pixelSize = pixelSize;
-    
+
     // Set up the first row
     image[0] = [];
     for (var i = 0; i < width; i++) {
         image[0][i] = initialConditions(i);
     }
-    
+
     // Iterate through the other rows
     for (var j = 1; j < height; j++) {
         image[j] = [];
@@ -53,10 +53,10 @@ var cellularlyAutomate = function(width, height, pixelSize, initialConditions, l
             image[j][i] = lifeFunction(a, b, c);
         }
     }
-    
+
     // That's it!
     return image;
-}
+};
 
 /** Paint an image onto a canvas's context. */
 var paintImage = function(context, colours, image)
@@ -81,12 +81,13 @@ var paintImage = function(context, colours, image)
  * Get a parameter from the query string.
  * Taken from http://stackoverflow.com/a/901144/3484614
  */
-var parameter = function(name) {
+var parameter = function(name)
+{
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
     return results == null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
+};
 
 var canvas = document.getElementById('canvas');
 var width = canvas.width;
@@ -112,8 +113,21 @@ if (rule && !string) {
     string = stringify(73, 2);
 }
 
+// Set up the initial conditions...
+var ic = parameter('ic');
+var initialConditions;
+if (ic == null || ic == 'random') {
+    initialConditions = function() { return Math.floor(Math.random() * radix); };
+} else if (ic == 'middle') {
+    initialConditions = function(i) { return (i == Math.floor(canvas.width / 2)) ? 1 : 0; };
+} else if (ic.match(/\d/)) {
+    var n = parseInt(ic);
+    initialConditions = function() { return n; };
+}
+
+// ...and generate the image...
 var life = generate(string, radix);
-var initialConditions = function() { return Math.floor(Math.random() * radix); };
 var image = cellularlyAutomate(canvas.width, canvas.height, pixelSize, initialConditions, life);
 
+// ...and display it!
 paintImage(canvas.getContext('2d'), myColours, image);
