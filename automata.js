@@ -169,14 +169,12 @@ if (ic == 'middle') {
 	}
 }
 
-if (panelSize == 'full') {	
-	if (canvas.width != docWidth) {
-		canvas.style.left = "" + (Math.floor(0 - ((canvas.width - docWidth) / 2))) + "px";
-	}
-	else
-	{
-		canvas.style.left = 0;
-	}
+if (canvas.width != docWidth) {
+	canvas.style.left = "" + (Math.floor(0 - ((canvas.width - docWidth) / 2))) + "px";
+}
+else
+{
+	canvas.style.left = 0;
 }
 
 var initialConditions;
