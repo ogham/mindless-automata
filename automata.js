@@ -38,30 +38,19 @@ var automata = (function (a)
     /**
      * Given a row, produce a new row by iterating over every triple of cells,
      * forming a new row of cells, which is then returned.
+     *
+     * The wrapping function takes a value that would be the wrapped-around
+     * value. It is up to the function whether it uses it or not.
      */
-    a.cellularlyAutomate = function(row, wrap, lifeFunction)
+    a.cellularlyAutomate = function(row, wrapFunction, lifeFunction)
     {
         var nextRow = [];
         var width = row.length;
 
         for (var i = 0; i < width; i++) {
-            var a = (i === 0)
-                ? (wrap === 'random')
-                    ? coinToss()
-                    : (wrap === 'false')
-                        ? image[j - 1][i]
-                        : image[j - 1][image.width - 1]
-                : image[j - 1][i - 1];
-
+            var a = (i === 0) ? wrapFunction(image[j - 1][width - 1]) : image[j - 1][i - 1];
             var b = image[j - 1][i];
-
-            var c = (i == image.width - 1)
-                ? (wrap === 'random')
-                    ? coinToss()
-                    : (wrap === 'false')
-                        ? image[j - 1][i]
-                        : image[j - 1][0]
-                : image[j - 1][i + 1];
+            var c = (i === width - 1) ? wrapFunction(image[j - 1][0]) : image[j - 1][i + 1];
 
             nextRow[i] = lifeFunction(a, b, c);
         }

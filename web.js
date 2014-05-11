@@ -39,8 +39,19 @@ var getInitialConditions = function(ic, radix)
     }
 };
 
+var getWrap = function(wrap, radix)
+{
+    if (wrap === 'random') {
+        return function() { return Math.floor(Math.random() * radix); };
+    } else if (wrap == 'true') {
+        return function(wrapped) { return wrapped; };
+    } else {
+        return function() { return 0; };
+    }
+};
+
 // Ages ago, life was born in the primitive sea...
-function getLife()
+var getLife = function()
 {
     var string = parameter('string');
     var radix = parameter('radix') || 2;
@@ -83,7 +94,6 @@ if (panelSize == 'full') {
 }
 
 var pixelSize = parseInt(parameter('pixelSize')) || 1;
-var wrap = parameter('wrap') || false;
 
 var myColours = [ '#fff', '#444', '#888', '#bbb' ];
 
@@ -115,7 +125,7 @@ image.width = canvas.width / pixelSize;
 image.height = canvas.height / pixelSize;
 image.pixelSize = pixelSize;
 
-var wrap = parameter('wrap');
+var wrap = getWrap(parameter('wrap'), options.radix);
 var lifeFunction = automata.generate(options.string, options.radix);
 
 for (var j = 1; j < canvas.height / pixelSize; j++) {
