@@ -10,20 +10,15 @@ var parameter = function(name)
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 };
 
-/** Paint an image onto a canvas's context. */
-var paintImage = function(context, colours, image)
+/** Paint a row onto a canvas's context. */
+var paintRow = function(context, colours, y, pixelSize, data)
 {
-    // The unpainted canvas is already white, so we only need to
-    // paint the filled-in pixels.
-    for (var j = 0; j < image.height; j++) {
-        for (var i = 0; i < image.width; i++) {
-            // There are various ways to paint a 1x1 pixel:
-            // http://jsperf.com/setting-canvas-pixel
-            // I've chosen the one that works for me.
-            var pixel = image[j][i];
-            context.fillStyle = colours[pixel];
-            context.fillRect(i * image.pixelSize, j * image.pixelSize, image.pixelSize, image.pixelSize);
-        }
+    for (var i = 0; i < data.length; i++) {
+        // There are various ways to paint a 1x1 pixel:
+        // http://jsperf.com/setting-canvas-pixel
+        // I've chosen the one that works for me.
+        context.fillStyle = colours[data[i]];
+        context.fillRect(i * pixelSize, y * pixelSize, pixelSize, pixelSize);
     }
 };
 
@@ -73,6 +68,7 @@ var getLife = function()
 // ---- web stuff ----
 
 var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
 var panelSize = parameter('panelSize');
 
 var docWidth = document.width;
@@ -119,17 +115,26 @@ if (panelSize === 'full') {
 
 var options = getLife();
 
-var image = [];
-image[0] = automata.initialRow(canvas.width / pixelSize, getInitialConditions(ic, options.radix));
-image.width = canvas.width / pixelSize;
-image.height = canvas.height / pixelSize;
-image.pixelSize = pixelSize;
+var row = automata.initialRow(canvas.width / pixelSize, getInitialConditions(ic, options.radix));
+paintRow(context, myColours, 0, pixelSize, row);
+var rowNum = 1;
 
 var wrap = getWrap(parameter('wrap'), options.radix);
 var lifeFunction = automata.generate(options.string, options.radix);
 
-for (var j = 1; j < canvas.height / pixelSize; j++) {
-    image[j] = automata.cellularlyAutomate(image[j - 1], wrap, lifeFunction);
-}
+var interval = setInterval(function()
+{
+    // JavaScript updation seems to work a lot better if you do them in large
+    // batches - but not too large, since it just slows it down again and then
+    // there's no point rendering the image progressively. 20 will do.
+    for (var n = 0; n < 20; n++) {
+        var nextRow = automata.cellularlyAutomate(row, wrap, lifeFunction);
+        paintRow(context, myColours, rowNum, pixelSize, nextRow);
+        row = nextRow;
 
-paintImage(canvas.getContext('2d'), myColours, image);
+        if (rowNum++ === canvas.height / pixelSize) {
+            window.clearInterval(interval);
+            break;
+        }
+    }
+}, 1);

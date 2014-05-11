@@ -48,9 +48,9 @@ var automata = (function (a)
         var width = row.length;
 
         for (var i = 0; i < width; i++) {
-            var a = (i === 0) ? wrapFunction(image[j - 1][width - 1]) : image[j - 1][i - 1];
-            var b = image[j - 1][i];
-            var c = (i === width - 1) ? wrapFunction(image[j - 1][0]) : image[j - 1][i + 1];
+            var a = (i === 0) ? wrapFunction(row[width - 1]) : row[i - 1];
+            var b = row[i];
+            var c = (i === width - 1) ? wrapFunction(row[0]) : row[i + 1];
 
             nextRow[i] = lifeFunction(a, b, c);
         }
