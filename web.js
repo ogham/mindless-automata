@@ -27,6 +27,40 @@ var paintImage = function(context, colours, image)
     }
 };
 
+var getInitialConditions = function(ic, radix)
+{
+    if (ic === null || ic === 'random') {
+        return function() { return Math.floor(Math.random() * radix); };
+    } else if (ic === 'middle') {
+        return function(i) { return (i === Math.floor(canvas.width / pixelSize / 2)) ? 1 : 0; };
+    } else if (ic.match(/\d/)) {
+        var n = parseInt(ic);
+        return function() { return n; };
+    }
+};
+
+// Ages ago, life was born in the primitive sea...
+function getLife()
+{
+    var string = parameter('string');
+    var radix = parameter('radix') || 2;
+    var rule = parameter('rule');
+
+    // The user can input either a string, or a rule number, and a radix.
+    // If we already have a string, then use that. But if we have a rule,
+    // then the rule will have to be turned into a string.
+    if (string) {
+        return { radix: radix, string: string };
+    } else if (rule && !string) {
+        return { radix: radix, string: automata.stringify(parseInt(rule), radix) };
+    } else if (!rule && !string) {
+        // If we have neither then just go with a cool default!
+        return { radix: 2, string: automata.stringify(73, 2) };
+    }
+};
+
+// ---- web stuff ----
+
 var canvas = document.getElementById('canvas');
 var panelSize = parameter('panelSize');
 
@@ -53,22 +87,6 @@ var wrap = parameter('wrap') || false;
 
 var myColours = [ '#fff', '#444', '#888', '#bbb' ];
 
-// Ages ago, life was born in the primitive sea...
-var string = parameter('string');
-var radix = parameter('radix') || 2;
-var rule = parameter('rule');
-
-// The user can input either a string, or a rule number, and a radix.
-// If we already have a string, then use that. But if we have a rule,
-// then the rule will have to be turned into a string.
-if (rule && !string) {
-    string = automata.stringify(parseInt(rule), radix);
-} else if (!rule && !string) {
-    // If we have neither then just go with a cool default!
-    radix = 2;
-    string = automata.stringify(73, radix);
-}
-
 var ic = parameter('ic');
 
 if ((canvas.width % pixelSize) !== 0) {
@@ -89,28 +107,19 @@ if (panelSize === 'full') {
     }
 }
 
-var initialConditions;
-if (ic === null || ic === 'random') {
-    initialConditions = function() { return Math.floor(Math.random() * radix); };
-} else if (ic === 'middle') {
-    initialConditions = function(i) { return (i === Math.floor(canvas.width / pixelSize / 2)) ? 1 : 0; };
-} else if (ic.match(/\d/)) {
-    var n = parseInt(ic);
-    initialConditions = function() { return n; };
-}
-
-var life = automata.generate(string, radix);
+var options = getLife();
 
 var image = [];
-image[0] = automata.initialRow(canvas.width / pixelSize, initialConditions);
+image[0] = automata.initialRow(canvas.width / pixelSize, getInitialConditions(ic, options.radix));
 image.width = canvas.width / pixelSize;
 image.height = canvas.height / pixelSize;
 image.pixelSize = pixelSize;
 
 var wrap = parameter('wrap');
+var lifeFunction = automata.generate(options.string, options.radix);
 
 for (var j = 1; j < canvas.height / pixelSize; j++) {
-    image[j] = automata.cellularlyAutomate(image[j - 1], wrap, life);
+    image[j] = automata.cellularlyAutomate(image[j - 1], wrap, lifeFunction);
 }
 
 paintImage(canvas.getContext('2d'), myColours, image);
