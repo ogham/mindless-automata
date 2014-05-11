@@ -69,7 +69,6 @@ if (rule && !string) {
     string = automata.stringify(73, radix);
 }
 
-// Set up the initial conditions...
 var ic = parameter('ic');
 
 if ((canvas.width % pixelSize) !== 0) {
@@ -100,9 +99,18 @@ if (ic === null || ic === 'random') {
     initialConditions = function() { return n; };
 }
 
-// ...and generate the image...
 var life = automata.generate(string, radix);
-var image = automata.cellularlyAutomate(canvas.width, canvas.height, wrap, pixelSize, initialConditions, life);
 
-// ...and display it!
+var image = [];
+image[0] = automata.initialRow(canvas.width / pixelSize, initialConditions);
+image.width = canvas.width / pixelSize;
+image.height = canvas.height / pixelSize;
+image.pixelSize = pixelSize;
+
+var wrap = parameter('wrap');
+
+for (var j = 1; j < canvas.height / pixelSize; j++) {
+    image[j] = automata.cellularlyAutomate(image[j - 1], wrap, life);
+}
+
 paintImage(canvas.getContext('2d'), myColours, image);

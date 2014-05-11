@@ -22,57 +22,51 @@ var automata = (function (a)
     };
 
     /**
-     * Return an array of arrays (rows first, then columns) of the result of
-     * calling the given cellular automaton repeatedly.
-     *
-     * The width and height are the limits of the dimensions it should expand
-     * into. The initialConditions function is called once per column for the
-     * first row, taking the column number as an optional parameter. The life
-     * function is then called once per cell, taking three arguments with the
-     * above-left, above, and above-right cells as values.
+     * Produce an initial row by calling the given function once per column.
      */
-    a.cellularlyAutomate = function(width, height, wrap, pixelSize, initialConditions, lifeFunction)
+    a.initialRow = function(width, initialFunction)
     {
-        // Set up the entire image
-        var image = [];
-        image.width = width / pixelSize;
-        image.height = height / pixelSize;
-        image.pixelSize = pixelSize;
+        var row = [];
 
-        // Set up the first row
-        image[0] = [];
-        for (var i = 0; i < image.width; i++) {
-            image[0][i] = initialConditions(i);
+        for (var i = 0; i < width; i++) {
+            row[i] = initialFunction(i);
         }
 
-        // Iterate through the other rows
-        for (var j = 1; j < image.height; j++) {
-            image[j] = [];
-            for (i = 0; i < image.width; i++) {
-                var a = (i === 0)
-                    ? (wrap === 'random')
-                        ? coinToss()
-                        : (wrap === 'false')
-                            ? image[j - 1][i]
-                            : image[j - 1][image.width - 1]
-                    : image[j - 1][i - 1];
+        return row;
+    };
 
-                var b = image[j - 1][i];
+    /**
+     * Given a row, produce a new row by iterating over every triple of cells,
+     * forming a new row of cells, which is then returned.
+     */
+    a.cellularlyAutomate = function(row, wrap, lifeFunction)
+    {
+        var nextRow = [];
+        var width = row.length;
 
-                var c = (i == image.width - 1)
-                    ? (wrap === 'random')
-                        ? coinToss()
-                        : (wrap === 'false')
-                            ? image[j - 1][i]
-                            : image[j - 1][0]
-                    : image[j - 1][i + 1];
+        for (var i = 0; i < width; i++) {
+            var a = (i === 0)
+                ? (wrap === 'random')
+                    ? coinToss()
+                    : (wrap === 'false')
+                        ? image[j - 1][i]
+                        : image[j - 1][image.width - 1]
+                : image[j - 1][i - 1];
 
-                image[j][i] = lifeFunction(a, b, c);
-            }
+            var b = image[j - 1][i];
+
+            var c = (i == image.width - 1)
+                ? (wrap === 'random')
+                    ? coinToss()
+                    : (wrap === 'false')
+                        ? image[j - 1][i]
+                        : image[j - 1][0]
+                : image[j - 1][i + 1];
+
+            nextRow[i] = lifeFunction(a, b, c);
         }
 
-        // That's it!
-        return image;
+        return nextRow;
     };
 
     return a;
