@@ -70,7 +70,7 @@ var getPixelSize = function() {
 };
 
 var getColours = function() {
-    return [ '#fff', '#444', '#888', '#bbb' ]; // todo ;)
+    return [ '#fff', '#444', '#2d2', '#d22' ]; // todo ;)
 };
 
 var resizeCanvas = function(canvas, panelSize, pixelSize, ic)
