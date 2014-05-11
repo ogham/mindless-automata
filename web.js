@@ -65,62 +65,75 @@ var getLife = function()
     }
 };
 
+var getPixelSize = function() {
+    return parseInt(parameter('pixelSize')) || 1;
+};
+
+var getColours = function() {
+    return [ '#fff', '#444', '#888', '#bbb' ]; // todo ;)
+};
+
+var resizeCanvas = function(canvas, panelSize, pixelSize)
+{
+    var docWidth = document.width;
+    var docHeight = document.height;
+
+    if (panelSize == 'full') {
+        canvas.style.marginTop = 0;
+        var width = document.width;
+        var height = document.height;
+        canvas.style.margin = 0;
+        canvas.style.padding = 0;
+        canvas.style.top = 0;
+        canvas.style.position = 'absolute';
+        canvas.width = docWidth;
+        canvas.height = docHeight;
+    } else {
+        canvas.width = 1000;
+        canvas.height = 500;
+    }
+
+    if ((canvas.width % pixelSize) !== 0) {
+        canvas.width = canvas.width + (pixelSize - (canvas.width % pixelSize));
+    }
+
+    if (ic === 'middle') {
+        if (Math.floor(canvas.width / pixelSize) % 2 === 0) {
+            canvas.width = canvas.width + pixelSize;
+        }
+    }
+
+    if (panelSize === 'full') {
+        if (canvas.width != docWidth) {
+            canvas.style.left = "" + (Math.floor(0 - ((canvas.width - docWidth) / 2))) + "px";
+        } else {
+            canvas.style.left = 0;
+        }
+    }
+};
+
 // ---- web stuff ----
 
+// Get options from the query string
+var pixelSize = getPixelSize();
+var myColours = getColours();
+var options = getLife();
+var wrap = getWrap(parameter('wrap'), options.radix);
+var lifeFunction = automata.generate(options.string, options.radix);
+
+var ic = parameter('ic');
+var initialConditions = getInitialConditions(ic, options.radix);
+
+// Set up the canvas
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 var panelSize = parameter('panelSize');
+resizeCanvas(canvas, panelSize, pixelSize);
 
-var docWidth = document.width;
-var docHeight = document.height;
-
-if (panelSize == 'full') {
-    canvas.style.marginTop = 0;
-    var width = document.width;
-    var height = document.height;
-    canvas.style.margin = 0;
-    canvas.style.padding = 0;
-    canvas.style.top = 0;
-    canvas.style.position = 'absolute';
-    canvas.width = docWidth;
-    canvas.height = docHeight;
-} else {
-    canvas.width = 1000;
-    canvas.height = 500;
-}
-
-var pixelSize = parseInt(parameter('pixelSize')) || 1;
-
-var myColours = [ '#fff', '#444', '#888', '#bbb' ];
-
-var ic = parameter('ic');
-
-if ((canvas.width % pixelSize) !== 0) {
-    canvas.width = canvas.width + (pixelSize - (canvas.width % pixelSize));
-}
-
-if (ic === 'middle') {
-    if (Math.floor(canvas.width / pixelSize) % 2 === 0) {
-        canvas.width = canvas.width + pixelSize;
-    }
-}
-
-if (panelSize === 'full') {
-    if (canvas.width != docWidth) {
-        canvas.style.left = "" + (Math.floor(0 - ((canvas.width - docWidth) / 2))) + "px";
-    } else {
-        canvas.style.left = 0;
-    }
-}
-
-var options = getLife();
-
-var row = automata.initialRow(canvas.width / pixelSize, getInitialConditions(ic, options.radix));
+// Paint the first row
+var row = automata.initialRow(canvas.width / pixelSize, initialConditions);
 paintRow(context, myColours, 0, pixelSize, row);
 var rowNum = 1;
-
-var wrap = getWrap(parameter('wrap'), options.radix);
-var lifeFunction = automata.generate(options.string, options.radix);
 
 var interval = setInterval(function()
 {
