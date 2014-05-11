@@ -73,36 +73,36 @@ var getColours = function() {
     return [ '#fff', '#444', '#888', '#bbb' ]; // todo ;)
 };
 
-var resizeCanvas = function(canvas, panelSize, pixelSize)
+var resizeCanvas = function(canvas, panelSize, pixelSize, ic)
 {
     var docWidth = document.width;
     var docHeight = document.height;
 
-    if (panelSize == 'full') {
+    // Expand the image to fill the frame
+    if (panelSize === 'full') {
         canvas.className = 'full';
         canvas.width = docWidth;
         canvas.height = docHeight;
-    } else {
-        canvas.width = 1000;
-        canvas.height = 500;
     }
 
+    // Round the width up to the nearest pixelSize
     if ((canvas.width % pixelSize) !== 0) {
-        canvas.width = canvas.width + (pixelSize - (canvas.width % pixelSize));
+        canvas.width += pixelSize - (canvas.width % pixelSize);
     }
 
-    if (ic === 'middle') {
-        if (Math.floor(canvas.width / pixelSize) % 2 === 0) {
-            canvas.width = canvas.width + pixelSize;
-        }
+    // If the user has specified the 'middle' initial condition, then it makes
+    // more sense for the image to have a central column, rather than two
+    // middle columns. So add one extra pixel if the width turns out to be an
+    // odd number.
+    if (ic === 'middle' && Math.floor(canvas.width / pixelSize) % 2 === 0) {
+        canvas.width += pixelSize;
     }
 
-    if (panelSize === 'full') {
-        if (canvas.width != docWidth) {
-            canvas.style.left = "" + (Math.floor(0 - ((canvas.width - docWidth) / 2))) + "px";
-        } else {
-            canvas.style.left = 0;
-        }
+    // Finally, if the user has specified full size, then centre the image on
+    // the page.
+    if (panelSize === 'full' && canvas.width !== docWidth) {
+        var newWidth = Math.floor((docWidth - canvas.width) / 2);
+        canvas.style.left = newWidth + "px";
     }
 };
 
@@ -122,7 +122,7 @@ var initialConditions = getInitialConditions(ic, options.radix);
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 var panelSize = parameter('panelSize');
-resizeCanvas(canvas, panelSize, pixelSize);
+resizeCanvas(canvas, panelSize, pixelSize, ic);
 
 // Paint the first row
 var row = automata.initialRow(canvas.width / pixelSize, initialConditions);
