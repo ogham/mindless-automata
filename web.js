@@ -79,13 +79,7 @@ var resizeCanvas = function(canvas, panelSize, pixelSize)
     var docHeight = document.height;
 
     if (panelSize == 'full') {
-        canvas.style.marginTop = 0;
-        var width = document.width;
-        var height = document.height;
-        canvas.style.margin = 0;
-        canvas.style.padding = 0;
-        canvas.style.top = 0;
-        canvas.style.position = 'absolute';
+        canvas.className = 'full';
         canvas.width = docWidth;
         canvas.height = docHeight;
     } else {

@@ -4,3 +4,11 @@ body {
     overflow: hidden;
     background: linear-gradient(to right, #eee 0%, #fff 10%, #fff 90%, #eee 100%);
 }
+
+.full {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
