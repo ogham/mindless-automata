@@ -75,8 +75,8 @@ var getColours = function() {
 
 var resizeCanvas = function(canvas, panelSize, pixelSize, ic)
 {
-    var docWidth = document.width;
-    var docHeight = document.height;
+    var docWidth = window.outerWidth;
+    var docHeight = window.outerHeight;
 
     // Expand the image to fill the frame
     if (panelSize === 'full') {
