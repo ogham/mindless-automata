@@ -45,7 +45,7 @@ var getWrap = function(wrap, radix)
     }
 };
 
-// Ages ago, life was born in the primitive sea...
+// Our bodies contain atoms made billions of years ago, in the fiery core of a supernova star.
 var getLife = function()
 {
     var string = parameter('string');
@@ -70,7 +70,33 @@ var getPixelSize = function() {
 };
 
 var getColours = function() {
-    return [ '#fff', '#444', '#2d2', '#d22' ]; // todo ;)
+    var colours = parameter('colours');
+    if (colours == 'random') {
+        colours = ',,,,,';
+    }
+    var computedcolours;
+
+    if (colours !== null) {
+        computedcolours = colours.split(',');
+        for (var i = 0; i < computedcolours.length; i++) {
+            if (computedcolours[i] == "") {
+                computedcolours[i] = padLeft(Math.floor(Math.random()*16777215).toString(16), 6);
+            }
+            if (computedcolours[i].indexOf('#') < 0) {
+                computedcolours[i] = '#' + computedcolours[i];
+            }
+        }
+    }
+    else 
+    {
+        computedcolours = [ '#fff', '#444', '#2d2', '#d22' ];
+    }
+
+    console.log(computedcolours);
+    
+    return computedcolours; // todo ;)
+
+    //return [ '#fff', '#444', '#2d2', '#d22' ];
 };
 
 var resizeCanvas = function(canvas, panelSize, pixelSize, ic)
@@ -145,3 +171,7 @@ var interval = setInterval(function()
         }
     }
 }, 1);
+
+function padLeft(nr, n, str){
+    return Array(n-String(nr).length+1).join(str||'0')+nr;
+}
